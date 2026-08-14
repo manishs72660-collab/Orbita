@@ -1,5 +1,20 @@
 const mongoose=require("mongoose");
 
+const addressschema=new mongoose.Schema({
+    city:{
+        type:String,
+        required:true,
+    },
+    home:{
+        type:String,
+        required:true,
+    },
+    pincode:{
+        type:String,
+        required:true,
+    }
+})
+
 const Userschema= new mongoose.Schema({
     username:{
         type:String,
@@ -19,10 +34,7 @@ const Userschema= new mongoose.Schema({
         required:true,
         unique:true,
     },
-    address: {
-        type: [String],
-        required: true,
-    },
+    address:addressschema,
     role:{
         type:String,
         enum:["User","Admin"],
