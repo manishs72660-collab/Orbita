@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axiosClient from "../utils/Axiosclient";
+import SearchBar from "../component/SearchBar";
 
 export default function Homepage() {
   const [products, setProducts] = useState([]);
@@ -29,9 +30,12 @@ export default function Homepage() {
 
   return (
     <div className="min-h-screen bg-slate-950 px-6 py-8">
-      <h1 className="text-2xl font-semibold text-white tracking-tight mb-6">
-        All products
-      </h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-semibold text-white tracking-tight">
+          All products
+        </h1>
+        <SearchBar />
+      </div>
 
       {error && (
         <p className="text-sm text-red-400 bg-red-950/40 border border-red-900 rounded-lg px-3 py-2 mb-6">

@@ -8,8 +8,25 @@ const authrouter=require("./src/routes/auth.routes");
 const cookieparser=require("cookie-parser");
 const productrouter=require("./src/routes/product.routes");
 const cartrouter=require("./src/routes/Cart.routes");
+const elasticClient = require("./src/config/elasticsearch");
+const { ensureProductIndex } = require("./src/config/Elasticproduct.service");
 const cors=require("cors");
 const app=express();
+
+
+
+
+async function testElasticSearch() {
+    try {
+        const response = await elasticClient.info();
+        console.log(response);
+        await ensureProductIndex(); // creates the "products" index if it doesn't exist yet
+    } catch (error) {
+        console.error("Elasticsearch connection failed:", error);
+    }
+}
+
+
 
 
 app.use(cors({
@@ -25,10 +42,10 @@ app.use("/cart",cartrouter);
 
 
 
-const PORT=process.env.PORT;
+const PORT=process.env.PORT || 3000;
 const Initializationconnectiom=async()=>{
    try{
-        await Promise.all([client.connect(), main()]);
+        await Promise.all([client.connect(), main(),testElasticSearch()]);
         console.log("DB connected");
         app.listen(PORT,()=>{
             console.log(`server listen at ${PORT}`);

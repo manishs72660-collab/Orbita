@@ -5,6 +5,7 @@ import { ProtectedRoute, AdminRoute } from "./component/Routeguards";
 import Navbar from "./component/Navbar";
 import Homepage from "./pages/Homepage";
 import ProductDetailPage from "./pages/ProductDetailPage";
+import SearchResultsPage from "./pages/Searchresultspage";
 import CartPage from "./pages/CartPage";
 import AdminPanel from "./pages/AdminPanel";
 import CreateProductPage from "./pages/Createproductpage";
@@ -49,6 +50,7 @@ function AppRoutes() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<Homepage />} />
           <Route path="/product/:id" element={<ProductDetailPage />} />
+          <Route path="/search" element={<SearchResultsPage />} />
           <Route path="/cart" element={<CartPage />} />
 
           <Route element={<AdminRoute />}>

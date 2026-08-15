@@ -6,9 +6,16 @@ const {
     getProductById,
     updateProduct,
     deleteProduct,
+    searchProductsHandler,
+    autocompleteHandler,
 } = require("../controller/product.controller");
 const { isAuthenticated, authorizeRoles } = require("../middleware/auth.middleware");
 const upload = require("../middleware/multer.middleware");
+
+// IMPORTANT: these two must come BEFORE "/:id" below, otherwise Express
+// will treat "search" / "autocomplete" as an :id value.
+router.get("/search", searchProductsHandler);
+router.get("/autocomplete", autocompleteHandler);
 
 // public: browse products
 router.get("/", getAllProducts);

@@ -1,5 +1,11 @@
 const Product = require("../models/product.models");
 const cloudinary = require("../config/cloudinary");
+const {
+    indexProduct,
+    deleteProductIndex,
+    searchProducts,
+    autocompleteProducts,
+} = require("../config/Elasticproduct.service");
 
 const uploadToCloudinary = (buffer) => {
     return new Promise((resolve, reject) => {
@@ -65,6 +71,9 @@ const createProduct = async (req, res) => {
             createdBy: req.user._id,
         });
 
+        // Fire-and-forget style sync: don't block/fail the response on ES.
+        indexProduct(product);
+
         res.status(201).json({
             success: true,
             message: product,
@@ -106,6 +115,48 @@ const getAllProducts = async (req, res) => {
                     limit,
                 },
             },
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+// ---------------- SEARCH (Elasticsearch) ----------------
+const searchProductsHandler = async (req, res) => {
+    try {
+        const { q, category, page, limit } = req.query;
+
+        const results = await searchProducts({
+            q,
+            category,
+            page: Number(page) || 1,
+            limit: Math.min(Number(limit) || 12, 50),
+        });
+
+        res.status(200).json({
+            success: true,
+            message: results,
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+// ---------------- AUTOCOMPLETE (Elasticsearch) ----------------
+const autocompleteHandler = async (req, res) => {
+    try {
+        const { q } = req.query;
+        const suggestions = await autocompleteProducts(q);
+
+        res.status(200).json({
+            success: true,
+            message: suggestions,
         });
     } catch (error) {
         res.status(400).json({
@@ -214,6 +265,9 @@ const updateProduct = async (req, res) => {
             { new: true, runValidators: true }
         );
 
+        // Re-sync the ES doc so search results reflect the edit immediately.
+        indexProduct(updatedProduct);
+
         res.status(200).json({
             success: true,
             message: updatedProduct,
@@ -241,6 +295,9 @@ const deleteProduct = async (req, res) => {
 
         await Product.findByIdAndDelete(id);
 
+        // Remove from the search index too, so it stops showing up in results.
+        await deleteProductIndex(id);
+
         res.status(200).json({
             success: true,
             message: "Product deleted successfully",
@@ -259,4 +316,6 @@ module.exports = {
     getProductById,
     updateProduct,
     deleteProduct,
+    searchProductsHandler,
+    autocompleteHandler,
 };
