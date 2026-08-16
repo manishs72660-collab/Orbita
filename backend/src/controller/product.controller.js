@@ -135,7 +135,7 @@ const searchProductsHandler = async (req, res) => {
             page: Number(page) || 1,
             limit: Math.min(Number(limit) || 12, 50),
         });
-
+        
         res.status(200).json({
             success: true,
             message: results,
